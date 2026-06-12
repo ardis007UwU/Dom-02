@@ -16,7 +16,7 @@ _______How do BIOS start up__________________
 
 _______Operating System________________________
 Legacy Booting
-    - BIOS loads first sector of each .bootable       device into memory (0x7C00)
+    - BIOS loads first sector of each bootable device into memory (0x7C00)
     - BIOS checks for signature (0xAA55h).
     -If found starts executing.
 EFI Booting
