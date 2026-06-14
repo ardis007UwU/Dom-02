@@ -142,4 +142,16 @@ returns nothing
 -cursor advances after write  
 -characters BEL (7), BS (8), LF (A), and CR (D) are treated as control codes
 
+__________________Bootloader______________________
+
+- loads basic components into memory
+- puts system in expected state
+- collects information about system
+
+
+______________Floppy disks_______________________
+- easy of use
+- universal support
+- Fat12 simple file system
+
 -ardis
