@@ -67,15 +67,16 @@ main:
     mov ss, ax
     mov sp, 0x7C00              
 
-    ; read something from floppy disk
+    ; Save the boot drive number given by BIOS
     mov [ebr_drive_number], dl
 
-    mov ax, 1                   ; LBA=1, second sector from disk[cite: 2]
-    mov cl, 1                   ; 1 sector to read[cite: 2]
-    mov bx, 0x7E00              ; data should be loaded to 0x7E00[cite: 2]
+    ; Read the kernel sectors from the disk safely
+    mov ax, 1                   ; Start at LBA 1 (right after boot sector)
+    mov cl, 4                   ; Read 4 sectors (plenty of room for kernel expansion)
+    mov bx, 0x7E00              ; Load the kernel data right to memory location 0x7E00
     call disk_read
 
-    ; JUMP TO KERNEL! Pass the drive number in DL and jump straight to 0x7E00.
+    ; Pass boot drive to kernel in DL and execute the jump
     mov dl, [ebr_drive_number]
     jmp 0x0000:0x7E00
 
@@ -100,6 +101,7 @@ lba_to_chs:
 
     xor dx, dx                          
     div word [bdb_sectors_per_track]    
+
     inc dx                              
     mov cx, dx                          
 
@@ -148,6 +150,7 @@ disk_read:
 
 .done:
     popa
+
     pop di
     pop dx
     pop cx
@@ -155,7 +158,6 @@ disk_read:
     pop ax                             
     ret
 
-; Resets disk controller
 disk_reset:
     pusha
     mov ah, 0
@@ -165,7 +167,7 @@ disk_reset:
     popa
     ret
 
-msg_read_failed:        db 'Read from disk failed!', ENDL, 0
+msg_read_failed:        db 'Disk Error!', ENDL, 0
 
 times 510-($-$$) db 0
 dw 0AA55h

@@ -7,7 +7,7 @@ BUILD_DIR=build
 
 all: floppy_image
 
-# Build the floppy image
+# Build the ultra-working sequential disk image
 floppy_image: bootloader kernel
 	mkdir -p $(BUILD_DIR)
 	# 1. Create a blank 1.44MB image file filled with zeros
@@ -16,7 +16,8 @@ floppy_image: bootloader kernel
 	# 2. Inject the bootloader directly into Sector 0 (Bytes 0 - 512)
 	dd if=$(BUILD_DIR)/bootloader.bin of=$(BUILD_DIR)/main_floppy.img conv=notrunc bs=512 count=1
 	
-	# 3. Inject the kernel directly into Sector 1 (Bytes 512 - 1024)
+	# 3. Inject the kernel directly into Sector 1 (Bytes 512 onwards)
+	# This aligns perfectly with the sector loading logic!
 	dd if=$(BUILD_DIR)/kernel.bin of=$(BUILD_DIR)/main_floppy.img conv=notrunc bs=512 seek=1
 
 # Compile bootloader
