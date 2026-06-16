@@ -9,7 +9,7 @@ bits 16
 jmp short start
 nop
 
-bdb_oem:                    db 'MSWIN4.1'           
+bdb_oem:                    db "MSWIN4.1"           
 bdb_bytes_per_sector:       dw 512
 bdb_sectors_per_cluster:    db 1
 bdb_reserved_sectors:       dw 1
@@ -28,8 +28,8 @@ ebr_drive_number:           db 0
                             db 0                    
 ebr_signature:              db 29h
 ebr_volume_id:              db 12h, 34h, 56h, 78h   
-ebr_volume_label:           db 'NANOBYTE OS'        
-ebr_system_id:              db 'FAT12   '           
+ebr_volume_label:           db "DOMINION OS"        
+ebr_system_id:              db "FAT12   "           
 
 start:
     jmp main
@@ -39,18 +39,14 @@ puts:
     push si
     push ax
     push bx
-
 .loop:
     lodsb               
     or al, al           
     jz .done
-
     mov ah, 0x0E        
     mov bh, 0           
     int 0x10
-
     jmp .loop
-
 .done:
     pop bx
     pop ax
@@ -59,11 +55,11 @@ puts:
 
 main:
     ; setup data segments
-    mov ax, 0                   
+    xor ax, ax                  
     mov ds, ax
     mov es, ax
     
-    ; setup stack
+    ; setup stack safely below bootloader bounds
     mov ss, ax
     mov sp, 0x7C00              
 
@@ -72,7 +68,7 @@ main:
 
     ; Read the kernel sectors from the disk safely
     mov ax, 1                   ; Start at LBA 1 (right after boot sector)
-    mov cl, 4                   ; Read 4 sectors (plenty of room for kernel expansion)
+    mov cl, 64                  ; UPGRADED: Read 64 sectors (32KB) for the 64-bit Kernel footprint
     mov bx, 0x7E00              ; Load the kernel data right to memory location 0x7E00
     call disk_read
 
@@ -112,7 +108,7 @@ lba_to_chs:
     shl ah, 6
     or cl, ah                           
 
-    pop ax
+    pop dx
     mov dl, al                          
     pop ax
     ret
@@ -167,7 +163,7 @@ disk_reset:
     popa
     ret
 
-msg_read_failed:        db 'Disk Error!', ENDL, 0
+msg_read_failed:        db "Disk Error!", ENDL, 0
 
 times 510-($-$$) db 0
 dw 0AA55h
